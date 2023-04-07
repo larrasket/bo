@@ -34,6 +34,7 @@ func setup() error {
 	if err != nil {
 		return fmt.Errorf("Couldn't read cwd; %w", err)
 	}
+	cwd, _ = filepath.EvalSymlinks(cwd)
 
 	for _, f := range lst {
 		p, _ := parse(f)
