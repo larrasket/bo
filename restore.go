@@ -26,10 +26,7 @@ func restore(uri []string) error {
 			log.Printf("Error getting file %s info; %v.. skipping\n", u, err)
 			continue
 		}
-
-		var dir bool
 		if fileInfo.Mode()&os.ModeDir != 0 && fileInfo.Mode()&os.ModeSymlink == 0 {
-			dir = true
 			fs, err := listDir(u)
 			if err != nil {
 				log.Printf("Error getting directory %s info; %v.. skipping\n",
@@ -47,6 +44,12 @@ func restore(uri []string) error {
 				log.Printf("Couldn't restore directory %s; %v.. skipping\n", u,
 					err)
 			}
+
+			err = os.RemoveAll(u)
+			if err != nil {
+
+				log.Printf(`Couldn't remove dummy dir %s; %v.. skipping\n`, u, err)
+			}
 			continue
 		}
 
@@ -59,11 +62,7 @@ func restore(uri []string) error {
 		if err != nil {
 			log.Printf(`Couldn't restore %s; %v.. skipping\n`, rUri, err)
 		}
-		if dir {
-			err = os.RemoveAll(u)
-		} else {
-			err = os.Remove(u)
-		}
+		err = os.Remove(u)
 		if err != nil {
 			log.Printf(`Couldn't remove link %s; %v.. skipping\n`, rUri, err)
 		}
@@ -91,7 +90,6 @@ func cliRestore(path string) error {
 		output.WriteString(scanner.Text() + "\n")
 		l++
 	}
-	fmt.Println(l)
 	_ = cmd.Process.Kill()
 
 	if l == 2 {

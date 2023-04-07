@@ -12,6 +12,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+		return
 	}
 	err := setup()
 	if err != nil {
