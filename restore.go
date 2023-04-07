@@ -48,24 +48,23 @@ func restore(uri []string) error {
 
 			err = os.RemoveAll(u)
 			if err != nil {
-				log.Printf(`Couldn't remove dummy dir %s; %v.. skipping\n`, u, err)
+				log.Printf("Couldn't remove dummy dir %s; %v.. skipping\n", u, err)
 			}
 			continue
 		}
 
 		if fileInfo.Mode()&os.ModeSymlink == 0 {
-			log.Printf(`file %s is not a link nor a dir of links; %v.. skipping\n`,
-				u, err)
+			log.Printf("file %s is not a link nor a dir of links; ..skipping\n", u)
 		}
 		rUri := filepath.Join(mdir, tu)
 		err = cliRestore(rUri)
 		if err != nil {
-			log.Printf(`Couldn't restore %s; %v.. skipping\n`, rUri, err)
+			log.Printf("Couldn't restore %s; %v.. skipping\n", rUri, err)
 			continue
 		}
 		err = os.Remove(u)
 		if err != nil {
-			log.Printf(`Couldn't remove link %s; %v.. skipping\n`, rUri, err)
+			log.Printf("Couldn't remove link %s; %v.. skipping\n", rUri, err)
 		}
 	}
 	return nil
@@ -99,7 +98,8 @@ func cliRestore(path string) error {
 		cmd.Run()
 		return nil
 	}
-	return fmt.Errorf(`Unexpected output from trash-restore, expected 2 lines
-output but got: %d. Full output:\n %s`, l, output.String())
+	return fmt.Errorf(
+		"Unexpected output from trash-restore, expected 2 lines output but got: %d. Full output: \n %s",
+		l, output.String())
 
 }
