@@ -7,9 +7,11 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	if len(os.Args) > 1 && os.Args[1] == "r" {
-		// TODO restore
-		return
+	if len(os.Args) > 2 && os.Args[1] == "r" {
+		err := restore(os.Args[2:])
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 	err := setup()
 	if err != nil {

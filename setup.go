@@ -1,56 +1,72 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func setup() (err error) {
-	err = removeDirectoryIfExists(RLoc)
+func setup() error {
+	err := removeDirectoryIfExists(RLoc)
 	if err != nil {
-		return
+		return fmt.Errorf("The temp dir %s is used or can't be deleted; %w",
+			RLoc, err)
 	}
 
-	os.Mkdir(RLoc, 0755)
-
-	lst, err := ListInfo()
+	err = os.Mkdir(RLoc, 0755)
 	if err != nil {
-		return
+		return fmt.Errorf("Couldn't create the temp dir %s; %w", RLoc, err)
+	}
+
+	lst, err := listDir(TInfoLoc)
+	if err != nil {
+		return fmt.Errorf("Couldn't read trash content from %s; %w", TInfoLoc,
+			err)
 	}
 
 	if len(lst) == 0 {
-		return
+		return nil
 	}
 
 	cwd, err := os.Getwd()
-	cwd = "/home/ghd/"
+	cwd = "/home/ghd/" // for testing
 	if err != nil {
-		return
+		return fmt.Errorf("Couldn't read cwd; %w", err)
 	}
 
-	for _, value := range lst {
-		p, _ := Parse(value)
+	for _, f := range lst {
+		p, _ := parse(f)
 		if !strings.Contains(p, cwd) {
 			continue
 		}
 
 		p = strings.TrimPrefix(p, cwd)
 		fp := strings.LastIndex(p, "/")
-		name := strings.TrimSuffix(value.Name(), ".trashinfo")
+		name := strings.TrimSuffix(f.Name(), ".trashinfo")
 		tfloc := filepath.Join(TFilesLoc, name)
 		if fp == -1 {
 			os.Symlink(tfloc, RLoc)
 			continue
 		}
 
-		err = os.MkdirAll(filepath.Join(RLoc, p[:fp]), 0755)
+		crt := filepath.Join(RLoc, p[:fp])
+		err = os.MkdirAll(crt, 0755)
 		if err != nil {
 			_ = removeDirectoryIfExists(RLoc)
-			return
+			return fmt.Errorf("Couldn't create path %s; %w", crt, err)
 		}
-
 		os.Symlink(tfloc, filepath.Join(filepath.Join(RLoc, p[:fp]), name))
 	}
-	return
+	f, err := os.Create(MetaLoc)
+	if err != nil {
+		return fmt.Errorf("Couldn't create metadata file %s; %w", MetaLoc, err)
+	}
+	defer f.Close()
+	_, err = f.WriteString(cwd)
+	if err != nil {
+		return fmt.Errorf("Couldn't write to the metadata file %s; %w", MetaLoc,
+			err)
+	}
+	return nil
 }
