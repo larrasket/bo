@@ -83,23 +83,28 @@ func cliRestore(path string) error {
 		return fmt.Errorf("Error starting command: %w", err)
 	}
 
-	var output bytes.Buffer
 	scanner := bufio.NewScanner(stdout)
-	var l int
+	var output []string
 	for scanner.Scan() {
-		output.WriteString(scanner.Text() + "\n")
-		l++
+		output = append(output, scanner.Text())
 	}
 	_ = cmd.Process.Kill()
 
-	if l == 2 {
-		cmd = exec.Command("trash-restore", path)
-		cmd.Stdin = bytes.NewReader([]byte("0\n"))
+	cmd = exec.Command("trash-restore", path)
+	cmd.Stdin = bytes.NewReader([]byte("0\n"))
+	if len(output) == 2 {
 		cmd.Run()
 		return nil
 	}
+	if len(output) == 3 {
+		fp := output[0][strings.Index(output[0], "/"):]
+		sp := output[1][strings.Index(output[1], "/"):]
+		if fp == sp {
+			cmd.Run()
+			return nil
+		}
+	}
 	return fmt.Errorf(
 		"Unexpected output from trash-restore, expected 2 lines output but got: %d. Full output: \n %s",
-		l, output.String())
-
+		len(output), strings.Join(output, "\n"))
 }
