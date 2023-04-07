@@ -30,7 +30,7 @@ func setup() error {
 	}
 
 	cwd, err := os.Getwd()
-	cwd = "/home/ghd/" // for testing
+	// cwd = "/home/ghd/" // for testing
 	if err != nil {
 		return fmt.Errorf("Couldn't read cwd; %w", err)
 	}
