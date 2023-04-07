@@ -38,6 +38,10 @@ func setup() error {
 
 	for _, f := range lst {
 		p, _ := parse(f)
+		// merge path with parent if not merged
+		if !strings.HasPrefix(p, "/") {
+			p = filepath.Join(ParentLoc, p)
+		}
 		if !strings.Contains(p, cwd) {
 			continue
 		}
