@@ -43,11 +43,11 @@ func restore(uri []string) error {
 			if err != nil {
 				log.Printf("Couldn't restore directory %s; %v.. skipping\n", u,
 					err)
+				continue
 			}
 
 			err = os.RemoveAll(u)
 			if err != nil {
-
 				log.Printf(`Couldn't remove dummy dir %s; %v.. skipping\n`, u, err)
 			}
 			continue
@@ -61,6 +61,7 @@ func restore(uri []string) error {
 		err = cliRestore(rUri)
 		if err != nil {
 			log.Printf(`Couldn't restore %s; %v.. skipping\n`, rUri, err)
+			continue
 		}
 		err = os.Remove(u)
 		if err != nil {
