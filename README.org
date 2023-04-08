@@ -1,0 +1,3 @@
+bo is a minimal bin organizer that uses trash-cli as a backend. It's also
+file-manager agnostic. See the [[file:integration/][ingeration/]] directory which contains instructions
+to use it with both dired and lf. (see [[https://youtu.be/oDWlq_0OuKI][lf demo]], [[https://youtu.be/7GOyLLmmyzE][dired demo]])
